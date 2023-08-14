@@ -70,7 +70,7 @@ def validActions(board, row, col, turn):
         moves = []
         if row > 0 and board[BLACK][row-1, col] == 0:
             moves.append((row-1, col))
-            if row == 6 and board[[BLACK][row-2, col]] == 0 :
+            if row == 6 and board[BLACK][row-2, col] == 0 :
                 moves.append(row-2, col)
         if row > 0 and col > 0 and board[BLACK][row - 1, col - 1] !=0 :
             moves.append((row-1, col-1))
@@ -81,7 +81,7 @@ def validActions(board, row, col, turn):
     
     # Black or white rook
 
-    if piece == scoring.get['r'] or piece == scoring.get['R']:
+    if piece == scoring.get('r') or piece == scoring.get('R'):
         moves = []
 
          # Check vertical moves upward
