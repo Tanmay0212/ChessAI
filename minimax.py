@@ -15,36 +15,145 @@ scoring= {'p': -1,
           'Q': 9,
           'K': 0,
           }
+blackPieces = ['p','n','b','r','q','k']
+whitePieces = ['P','N','B','R','Q','K']
 
-# def makeBoard():
-#     board = np.zeros((2,8,8))
 
-#     board[BLACK][0,0] = scoring.get('r')
-#     board[BLACK][0,1] = scoring.get('n')
-#     board[BLACK][0,2] = scoring.get('b')
-#     board[BLACK][0,3] = scoring.get('q')
-#     board[BLACK][0,4] = scoring.get('k')
-#     board[BLACK][0,5] = scoring.get('b')
-#     board[BLACK][0,6] = scoring.get('n')
-#     board[BLACK][0,7] = scoring.get('r') 
 
-#     board[WHITE][7,0] = scoring.get('R')
-#     board[WHITE][7,1] = scoring.get('N')
-#     board[WHITE][7,2] = scoring.get('B')
-#     board[WHITE][7,3] = scoring.get('Q')
-#     board[WHITE][7,4] = scoring.get('K')
-#     board[WHITE][7,5] = scoring.get('B')
-#     board[WHITE][7,6] = scoring.get('N')
-#     board[WHITE][7,7] = scoring.get('R')
-
-#     for i in range(8):
-#         board[BLACK][1, i] = scoring.get('p')  # Black pawns
-#         board[WHITE][6, i] = scoring.get('P')  # White pawns
-
+def getBlackPawnPos(board):
+    pos = np.where(board == 'p')
+    return list(zip(pos[0], pos[1]))
     
-#     return board
+
+def getBlackRookPos(board):
+    pos = np.where(board == 'r')
+    return list(zip(pos[0], pos[1]))
+
+def getBlackBishopPos(board):
+    pos = np.where(board == 'b')
+    return list(zip(pos[0], pos[1]))
+
+def getBlackKnightPos(board):
+    pos = np.where(board == 'n')
+    return list(zip(pos[0], pos[1]))
+
+def getBlackQueenPos(board):
+    pos = np.where(board == 'q')
+    return list(zip(pos[0], pos[1]))
+
+def getBlackKingPos(board):
+    pos = np.where(board == 'k')
+    return list(zip(pos[0], pos[1]))
+
+def blackPawnValidMov(board, pos):
+    valid_states = []
+    for row,col in pos :
+        current_board = board.copy()
+        if row < 7 and board[row+1,col] == 'E':
+            current_board[row+1,col] == 'p'
+            current_board[row,col] == 'E'
+            valid_states.append(current_board)
+            current_board = board.copy()
+            if row == 1 and board[row+2,col] == 'E':
+                current_board[row+2,col] == 'p'
+                current_board[row,col] == 'E'
+                valid_states.append(current_board)
+                current_board = board.copy()
+        if row < 7 and col > 0 and board[row+1, col-1] in whitePieces:
+            current_board[row+1, col-1] = 'p'
+            current_board[row,col] = 'E'
+            valid_states.append(current_board)
+            current_board = board.copy()
+        if row < 7 and col < 7 and board[row+1, col+1] in whitePieces:
+            current_board[row+1,col+1] = 'p'
+            current_board[row,col] = 'E'
+            valid_states.append(current_board)
+            current_board = board.copy()
+    return valid_states   
+
+
+def blackRookValidMov(board, pos):
+    valid_states = []
+    for row, col in pos:
+        current_board = board.copy()
+         # Check vertical moves upward
+        for i in range(row - 1, -1, -1):
+            if board[i, col] == 'E' or board[i, col] not in blackPieces:
+                current_board[i,col] = 'r'
+                current_board[row,col] = 'E'
+                valid_states.append(current_board)
+            else:
+                break
+
+        # Check vertical moves downward
+        for i in range(row + 1, 8):
+            current_board = board.copy()
+            if board[i, col] == 'E' or board[i, col] not in blackPieces:
+                current_board[i,col] = 'r'
+                current_board[row,col] = 'E'
+                valid_states.append(current_board)
+            else:
+                break
+
+        # Check horizontal moves to the left
+        for j in range(col - 1, -1, -1):
+            current_board = board.copy()
+            if board[row, j] == 'E' or board[row, j] not in blackPieces:
+                current_board[row,j] = 'r'
+                current_board[row,col] = 'E'
+                valid_states.append(current_board)
+            else:
+                break
+
+        # Check horizontal moves to the right
+        for j in range(col + 1, 8):
+            current_board = board.copy()
+            if board[row, j] == 'E' or board[row, j] not in blackPieces:
+                current_board[row,j] = 'r'
+                current_board[row,col] = 'E'
+                valid_states.append(current_board)
+            else:
+                break
+    return valid_states
+
+
+
+
+def validActions1(state):
+    state.whiteToMove = False
+
+    if state.whiteToMove == False:
+
+        #Black Pawn
+        pos = getBlackPawnPos(state.board)
+        print("Pawn Positions: ")
+        print(pos)
+        valid_states = []
+        valid_states.append(blackPawnValidMov(state.board, pos))
+        
+
+        #Black rook
+        pos = getBlackRookPos(state.board)
+        print("Rook Positions :")
+        print(pos)
+        valid_states.append(blackRookValidMov(state.board,pos))
+
+        return valid_states
+
+            
+            
+        
+
+
 
 def validActions(state, row, col, turn):
+
+
+
+
+
+
+    
     piece = state.board[turn][row, col]
 
     # Valid Moves for Black player
@@ -115,6 +224,36 @@ def validActions(state, row, col, turn):
         
         return moves
 
+    #Black or WHite knight
+
+    if piece == scoring['n'] or piece == scoring['N']:  # Knight (both white and black)
+            valid_moves = []
+
+            # Knight moves (L-shaped)
+            knight_moves = [(2, 1), (1, 2), (-1, 2), (-2, 1), (-2, -1), (-1, -2), (1, -2), (2, -1)]
+
+            for dr, dc in knight_moves:
+                new_row, new_col = row + dr, col + dc
+                if 0 <= new_row < 8 and 0 <= new_col < 8:
+                    dest_piece = state.board[self.current_player, new_row, new_col]
+                    if dest_piece == 0 or self.is_opponent_piece(new_row, new_col):
+                        valid_moves.append((new_row, new_col))
+
+            return valid_moves
+
+
+
+
+
+
+def minimax(state):
+    currentState = state.copy()
+    all_valid_actions = valid_actions(state)
+    best_action = get_best_move(all_valid_actions)
+    currentState = best_action
+    return best_action
+    state.whiteToMove = not state.whiteToMove
+    minimax(state)
 
 
 

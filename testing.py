@@ -1,9 +1,8 @@
-from minimax import makeBoard, validActions
+from gamestate import GameState as gs
 
-board = makeBoard()
-print(board)
-moves = validActions(board,3, 3, 0)
-print(moves)
+obj = gs()
+print(obj.board)
+
 
 
 
