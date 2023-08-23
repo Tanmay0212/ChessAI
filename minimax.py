@@ -50,13 +50,13 @@ def blackPawnValidMov(board, pos):
     for row,col in pos :
         current_board = board.copy()
         if row < 7 and board[row+1,col] == 'E':
-            current_board[row+1,col] == 'p'
-            current_board[row,col] == 'E'
+            current_board[row+1,col] = 'p'
+            current_board[row,col] = 'E'
             valid_states.append(current_board)
             current_board = board.copy()
             if row == 1 and board[row+2,col] == 'E':
-                current_board[row+2,col] == 'p'
-                current_board[row,col] == 'E'
+                current_board[row+2,col] = 'p'
+                current_board[row,col] = 'E'
                 valid_states.append(current_board)
                 current_board = board.copy()
         if row < 7 and col > 0 and board[row+1, col-1] in whitePieces:
@@ -75,13 +75,15 @@ def blackPawnValidMov(board, pos):
 def blackRookValidMov(board, pos):
     valid_states = []
     for row, col in pos:
+        print(row,col)
         current_board = board.copy()
          # Check vertical moves upward
         for i in range(row - 1, -1, -1):
             if board[i, col] == 'E' or board[i, col] not in blackPieces:
-                current_board[i,col] = 'r'
-                current_board[row,col] = 'E'
-                valid_states.append(current_board)
+                if board[i+1,col] not in whitePieces: # To make sure rook does not jump over a white piece
+                    current_board[i,col] = 'r'
+                    current_board[row,col] = 'E'
+                    valid_states.append(current_board)
             else:
                 break
 
@@ -89,9 +91,10 @@ def blackRookValidMov(board, pos):
         for i in range(row + 1, 8):
             current_board = board.copy()
             if board[i, col] == 'E' or board[i, col] not in blackPieces:
-                current_board[i,col] = 'r'
-                current_board[row,col] = 'E'
-                valid_states.append(current_board)
+                if board[i-1,col] not in whitePieces:  # To make sure rook does not jump over a white piece
+                    current_board[i,col] = 'r'
+                    current_board[row,col] = 'E'
+                    valid_states.append(current_board)
             else:
                 break
 
@@ -99,9 +102,10 @@ def blackRookValidMov(board, pos):
         for j in range(col - 1, -1, -1):
             current_board = board.copy()
             if board[row, j] == 'E' or board[row, j] not in blackPieces:
-                current_board[row,j] = 'r'
-                current_board[row,col] = 'E'
-                valid_states.append(current_board)
+                if board[row,j+1] not in whitePieces:
+                    current_board[row,j] = 'r'  
+                    current_board[row,col] = 'E'
+                    valid_states.append(current_board)
             else:
                 break
 
@@ -109,142 +113,95 @@ def blackRookValidMov(board, pos):
         for j in range(col + 1, 8):
             current_board = board.copy()
             if board[row, j] == 'E' or board[row, j] not in blackPieces:
-                current_board[row,j] = 'r'
-                current_board[row,col] = 'E'
-                valid_states.append(current_board)
+                if board[row,j-1] not in whitePieces:
+                    current_board[row,j] = 'r'
+                    current_board[row,col] = 'E'
+                    valid_states.append(current_board)
             else:
                 break
     return valid_states
 
 
 
+def blacknightValidMov(board,pos):
+    # Define the valid moves for a black knight
+    knight_moves = [(-1, -2), (-2, -1), (-2, 1), (-1, 2), (1, -2), (2, -1), (2, 1), (1, 2)]
+    valid_states = []
+    for knight_position in pos:
+        row, col = knight_position
+        for move in knight_moves:
+            new_row = row + move[0]
+            new_col = col + move[1]
+            if 0 <= new_row < 8 and 0 <= new_col < 8 and board[new_row, new_col] not in blackPieces:
+                current_board = board.copy()
+                current_board[new_row, new_col] = 'n'  # Move to the new position
+                current_board[row, col] = 'E'  # Clear the knight's previous position
+                valid_states.append(current_board)
+    
+    return valid_states
 
-def validActions1(state):
+def blackBishopValidMov(board,pos):
+    # Define the valid moves for a bishop (diagonal moves)
+    bishop_moves = [(1, 1), (-1, 1), (1, -1), (-1, -1)]
+    valid_states = []
+    for bishop_position in pos:
+        row, col = bishop_position
+        for dr, dc in bishop_moves:
+            new_row, new_col = row + dr, col + dc
+            while 0 <= new_row < 8 and 0 <= new_col < 8:
+                if board[new_row, new_col] in blackPieces:
+                    break
+                current_board = board.copy()
+                current_board[new_row, new_col] = 'b'  # Move to the new position
+                current_board[row, col] = 'E'  # Clear the bishop's previous position
+                valid_states.append(current_board)
+
+                #if board[new_row, new_col] in whitePieces:
+                #    break  # Cannot move past your own pieces
+                new_row += dr
+                new_col += dc
+
+    return valid_states
+
+
+
+
+
+
+
+
+
+def validActions(state):
     state.whiteToMove = False
 
     if state.whiteToMove == False:
+        valid_states = []
 
         #Black Pawn
-        pos = getBlackPawnPos(state.board)
-        print("Pawn Positions: ")
-        print(pos)
-        valid_states = []
-        valid_states.append(blackPawnValidMov(state.board, pos))
+        #pos = getBlackPawnPos(state.board)
+        #valid_states.append(blackPawnValidMov(state.board, pos))
         
 
         #Black rook
-        pos = getBlackRookPos(state.board)
-        print("Rook Positions :")
-        print(pos)
-        valid_states.append(blackRookValidMov(state.board,pos))
+        #pos = getBlackRookPos(state.board)
+        #print("Rook Positions :")
+        #print(pos)
+        #valid_states.append(blackRookValidMov(state.board,pos))
+
+
+        #Black Knight
+        #pos = getBlackKnightPos(state.board)
+        #valid_states.append(blacknightValidMov(state.board,pos))
+
+        #Black Bishop
+        pos = getBlackBishopPos(state.board)
+        valid_states.append(blackBishopValidMov(state.board,pos))
 
         return valid_states
 
             
             
         
-
-
-
-def validActions(state, row, col, turn):
-
-
-
-
-
-
-    
-    piece = state.board[turn][row, col]
-
-    # Valid Moves for Black player
-    #if turn == BLACK:
-        
-    # Black Pawn
-    if piece == scoring.get('p'):
-        moves = []
-        if row < 7 and state.board[WHITE][row+1,col] == 0:
-            moves.append((row+1, col))
-            if row == 1 and state.board[WHITE][row+2,col] == 0:
-                moves.append((row+2, col))
-        if row < 7 and col > 0 and state.board[WHITE][row+1, col-1] != 0:
-            moves.append((row+1,col-1))
-        if row < 7 and col < 7 and state.board[WHITE][row+1, col+1] != 0:
-            moves.append((row+1,col+1))
-        return moves
-    
-    # Valid moves for white player
-    #else:
-        
-    # White Pawn
-    if piece == scoring.get('P'):
-        moves = []
-        if row > 0 and state.board[BLACK][row-1, col] == 0:
-            moves.append((row-1, col))
-            if row == 6 and state.board[BLACK][row-2, col] == 0 :
-                moves.append(row-2, col)
-        if row > 0 and col > 0 and state.board[BLACK][row - 1, col - 1] !=0 :
-            moves.append((row-1, col-1))
-        if row > 0 and col < 7 and state.board[BLACK][row - 1, col + 1] !=0 :
-            moves.append(row-1, col+1)
-        return moves
-
-    
-    # Black or white rook
-
-    if piece == scoring.get('r') or piece == scoring.get('R'):
-        moves = []
-
-         # Check vertical moves upward
-        for i in range(row - 1, -1, -1):
-            if state.board[BLACK][i, col] == 0 and state.board[WHITE][i, col] == 0:
-                moves.append((i, col))
-            else:
-                break
-
-        # Check vertical moves downward
-        for i in range(row + 1, 8):
-            if state.board[BLACK][i, col] == 0 and state.board[WHITE][i, col] == 0:
-                moves.append((i, col))
-            else:
-                break
-
-        # Check horizontal moves to the left
-        for j in range(col - 1, -1, -1):
-            if state.board[BLACK][row, j] == 0 and state.board[WHITE][row, j] == 0:
-                moves.append((row, j))
-            else:
-                break
-
-        # Check horizontal moves to the right
-        for j in range(col + 1, 8):
-            if state.board[BLACK][row, j] == 0 and state.board[WHITE][row, j] == 0:
-                moves.append((row, j))
-            else:
-                break
-        
-        return moves
-
-    #Black or WHite knight
-
-    if piece == scoring['n'] or piece == scoring['N']:  # Knight (both white and black)
-            valid_moves = []
-
-            # Knight moves (L-shaped)
-            knight_moves = [(2, 1), (1, 2), (-1, 2), (-2, 1), (-2, -1), (-1, -2), (1, -2), (2, -1)]
-
-            for dr, dc in knight_moves:
-                new_row, new_col = row + dr, col + dc
-                if 0 <= new_row < 8 and 0 <= new_col < 8:
-                    dest_piece = state.board[self.current_player, new_row, new_col]
-                    if dest_piece == 0 or self.is_opponent_piece(new_row, new_col):
-                        valid_moves.append((new_row, new_col))
-
-            return valid_moves
-
-
-
-
-
 
 def minimax(state):
     currentState = state.copy()

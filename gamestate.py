@@ -40,6 +40,9 @@ class GameState:
         for i in range(8):
             self.board[1, i] = 'p'  # Black pawns
             self.board[6, i] = 'P'  # White pawns
+        
+        #self.board[1,0] = 'E'
+        #self.board[1,6] = 'E'
 
         # Replace 0 with None using NumPy masking
         self.board[self.board == 0] = 'E'
